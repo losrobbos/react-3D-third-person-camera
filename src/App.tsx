@@ -4,21 +4,22 @@ import { OrbitControls, Stats } from '@react-three/drei'
 import { Lighting } from './components/Lighting'
 import { Helpers } from './components/Helpers'
 import { RingOfFire } from './components/RingOfFire'
+import { Camera } from './components/Camera'
+import { useInput } from './hooks/useInput'
 
 
 function App() {
 
   const helpersVisible = true
 
-  // TODO: code ZOOM by keys! (=> change fov of camera)
-
   return (
-    <Canvas camera={{ position: [0,3,5], fov: 30 }}>
+    <Canvas camera={{ position: [0,3,5] }}>
+      <Camera />
       <Helpers visible={helpersVisible} />
       <Lighting helper={helpersVisible} />
       <PlayerBox helper={helpersVisible} />
       <RingOfFire />
-      <OrbitControls />
+      {/* <OrbitControls /> */}
       <Stats />
     </Canvas>
   )
