@@ -1,19 +1,23 @@
 import { Canvas } from '@react-three/fiber'
-import { Box } from './components/Box'
+import { PlayerBox } from './components/PlayerBox'
 import { OrbitControls, Stats } from '@react-three/drei'
 import { Lighting } from './components/Lighting'
 import { Helpers } from './components/Helpers'
+import { RingOfFire } from './components/RingOfFire'
 
 
 function App() {
 
   const helpersVisible = true
 
+  // TODO: code ZOOM by keys! (=> change fov of camera)
+
   return (
-    <Canvas>
+    <Canvas camera={{ position: [0,3,5], fov: 30 }}>
       <Helpers visible={helpersVisible} />
       <Lighting helper={helpersVisible} />
-      <Box helper={helpersVisible} />
+      <PlayerBox helper={helpersVisible} />
+      <RingOfFire />
       <OrbitControls />
       <Stats />
     </Canvas>
