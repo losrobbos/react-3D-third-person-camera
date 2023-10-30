@@ -32,3 +32,7 @@ a:hover {
   height: 1px;
   min-height: 100vh;
 }
+
+canvas {
+  background-color: lightgray;
+}

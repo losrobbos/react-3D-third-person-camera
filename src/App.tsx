@@ -2,17 +2,18 @@ import { Canvas } from '@react-three/fiber'
 import { Box } from './components/Box'
 import { OrbitControls, Stats } from '@react-three/drei'
 import { Lighting } from './components/Lighting'
+import { Helpers } from './components/Helpers'
 
 
 function App() {
 
-  const helpersVisible = false
+  const helpersVisible = true
 
   return (
     <Canvas>
-      <axesHelper args={[5]} visible={helpersVisible} />
-      <Lighting />
-      <Box />
+      <Helpers visible={helpersVisible} />
+      <Lighting helper={helpersVisible} />
+      <Box helper={helpersVisible} />
       <OrbitControls />
       <Stats />
     </Canvas>
