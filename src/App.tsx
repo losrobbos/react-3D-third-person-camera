@@ -1,11 +1,11 @@
 import { Canvas } from '@react-three/fiber'
 import { PlayerBox } from './components/PlayerBox'
-import { OrbitControls, Stats } from '@react-three/drei'
+import { Stats } from '@react-three/drei'
 import { Lighting } from './components/Lighting'
 import { Helpers } from './components/Helpers'
 import { RingOfFire } from './components/RingOfFire'
 import { Camera } from './components/Camera'
-import { useInput } from './hooks/useInput'
+import { Testing } from './components/Testing'
 
 
 function App() {
