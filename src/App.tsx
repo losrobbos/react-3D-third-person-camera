@@ -5,8 +5,6 @@ import { Lighting } from './components/Lighting'
 import { Helpers } from './components/Helpers'
 import { RingOfFire } from './components/RingOfFire'
 import { Camera } from './components/Camera'
-import { Testing } from './components/Testing'
-
 
 function App() {
 

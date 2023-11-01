@@ -1,5 +1,3 @@
-import { useFrame, useThree } from "@react-three/fiber"
-import { useInput } from "../hooks/useInput"
 
 export const Camera = () => {
 
@@ -19,6 +17,3 @@ export const Camera = () => {
   return null;
 }
 
-export const useCamera = () => {
-  return useThree(state => state.camera)
-}

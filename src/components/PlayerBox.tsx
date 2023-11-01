@@ -3,7 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { BoxHelper, Mesh, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
-import { Testing } from "./Testing";
+import { useCamera } from "../hooks/useCamera";
 
 export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
@@ -11,6 +11,7 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
   const { keysPressed } = useInput()
 
   useHelper(refBox, BoxHelper, "grey")
+  const camera = useCamera()
 
   /**
    * TODO Apply movement by VECTOR (!) not by just single axis 
@@ -31,22 +32,28 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
     //   console.log(keysPressed)
     // }
 
-    if (keysPressed.left) {
-      player.rotation.y += 0.03
+    if (keysPressed.left || keysPressed.right) {
+      player.rotation.y += keysPressed.left ? 0.03 : -0.03
     }
-    else if (keysPressed.right) {
-      player.rotation.y -= 0.03
-    }
-
+    
     // perform MOVEMENT in direction
     if (keysPressed.up || keysPressed.down) {
       const playerDirection = new Vector3()
       player.getWorldDirection(playerDirection)
       // move player position in accordance to current orientation (=world direction) 
       const acceleration = keysPressed.up ? - 0.05 : 0.05
-      player.position.add(playerDirection.multiplyScalar(acceleration))
+      const playerShift = playerDirection.multiplyScalar(acceleration)
+      player.position.add(playerShift)
+
+      // move player accordingly
+      camera.position.add(playerShift)
     }
 
+    /**
+     * MOVE camera
+     * - if player rotated => rotate camera too!
+     * - if player moved by direction => move camera by that direction too!
+     */
 
   })
 
@@ -56,7 +63,6 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial color={"purple"} />
       </mesh>
-      <Testing player={refBox} />
     </>
   );
 }
