@@ -1,7 +1,7 @@
 import { useHelper } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
-import { BoxHelper, Mesh, Vector3 } from "three";
+import { BoxHelper, Mesh, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
 
@@ -26,9 +26,23 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
     if (keysPressed.left || keysPressed.right) {
       const rotationShift = keysPressed.left ? 0.03 : -0.03
-      player.rotation.y += rotationShift
+      // player.rotation.y += rotationShift
       // camera.rotation.y += rotationShift
-      // camera.lookAt(player.position)
+
+      // determine rotation quaternion
+      const q = new Quaternion()
+      q.setFromAxisAngle(new Vector3(0,1,0).normalize(), rotationShift)
+
+      // rotate player
+      player.applyQuaternion(q)
+
+      // refocus player after doing position shift!
+      camera.lookAt(player.position)
+
+      // rotate camera position by the same angle
+      // camera.position.applyQuaternion(q)
+      // TODO: rotate POSIION of camera around object! (using same rotation quaternion!)
+
     }
 
     // perform MOVEMENT in direction
@@ -41,8 +55,9 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
       const positionShift = playerDirection.multiplyScalar(acceleration)
       player.position.add(positionShift)
 
-      // move camera accordingly
+      // move camera accordingly in same direction as player
       camera.position.add(positionShift)
+      camera.lookAt(player.position)      
       
       // const cameraOffset = new Vector3(0, 1, 3) // fixed distance from player
       // const camTarget = new Vector3() 
