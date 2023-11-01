@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { act } from "react-dom/test-utils";
 
 interface IKeyMap {
   ArrowLeft: "left";
@@ -15,24 +16,22 @@ const KEY_MAP: IKeyMap = {
   ArrowUp: "up",
   ArrowDown: "down",
   Shift: "shift",
-  " ": "space"
-}
+  " ": "space",
+};
 
 export const useInput = () => {
-
   const [keysPressed, setKeysPressed] = useState({
     up: false,
     down: false,
     left: false,
     right: false,
     space: false,
-    shift: false
-  }) 
+    shift: false,
+  });
 
-  const setUnsetKey = (e: KeyboardEvent, active: boolean) => {
+  const toggleKey = (e: KeyboardEvent, active: boolean) => {
     if (e.key in KEY_MAP) {
-            
-      const KEY = KEY_MAP[e.key as keyof IKeyMap]
+      const KEY = KEY_MAP[e.key as keyof IKeyMap];
 
       setKeysPressed({
         ...keysPressed,
@@ -41,20 +40,26 @@ export const useInput = () => {
     }
   };
 
-  const setKey = (e: KeyboardEvent) => setUnsetKey(e, true)
+  const setKey = (e: KeyboardEvent) => toggleKey(e, true);
 
-  const unsetKey = (e: KeyboardEvent) => setUnsetKey(e,false)
+  const unsetKey = (e: KeyboardEvent) => toggleKey(e, false);
 
-  // register keyboard events once
+  /**
+   * ! WARNING: Event listeners must alwas be RE-created on state change
+   * This way we prevent stale state snapshot data in listeners
+   */
   useEffect(() => {
-    document.addEventListener("keydown", setKey)
-    document.addEventListener("keyup", unsetKey)
 
+    // register keyboard events once
+    document.addEventListener("keydown", setKey);
+    document.addEventListener("keyup", unsetKey);
+
+    // clear listeners on scene unmount
     return () => {
-      document.removeEventListener("keydown", setKey)
-      document.removeEventListener("keyup", unsetKey)
-    }
-  }, [])
+      document.removeEventListener("keydown", setKey);
+      document.removeEventListener("keyup", unsetKey);
+    };
+  }, [keysPressed]);
 
-  return { keysPressed, setKeysPressed }
-}
+  return { keysPressed, setKeysPressed };
+};
