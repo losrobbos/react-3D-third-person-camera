@@ -37,28 +37,13 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
     else if (keysPressed.right) {
       player.rotation.y -= 0.03
     }
-    if (keysPressed.up) {
-      player.position.z -= 0.01
-      // TODO: calculate new position in X / Z space
-      // we need to consider current rotation
-      // from that we must derive a VECTOR
-      // and then move the player in the direction of that vector!
-    }
-    else if (keysPressed.down) {
-      player.position.z += 0.01
-    }
 
-
-    // after all rotations are done 
-    // check MOVEMENT
-    if (keysPressed.space) {
-      // console.log("Space pressed...")
+    // perform MOVEMENT in direction
+    if (keysPressed.up || keysPressed.down) {
       const playerDirection = new Vector3()
       player.getWorldDirection(playerDirection)
-      // console.log("- Player Pos: ", player.position)
-      // console.log("- Direction", playerDirection)
       // move player position in accordance to current orientation (=world direction) 
-      const acceleration = 0.05
+      const acceleration = keysPressed.up ? - 0.05 : 0.05
       player.position.add(playerDirection.multiplyScalar(acceleration))
     }
 
