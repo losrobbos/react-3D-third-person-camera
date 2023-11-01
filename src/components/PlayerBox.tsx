@@ -1,6 +1,6 @@
 import { useHelper } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { BoxHelper, Mesh, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
@@ -8,15 +8,37 @@ import { useCamera } from "../hooks/useCamera";
 export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
   const refBox = useRef<Mesh>(null!)
+  const camera = useCamera()
   const { keysPressed } = useInput()
 
   useHelper(helper && refBox, BoxHelper, "grey")
-  const camera = useCamera()
+
+  const calcCameraOffsetNew = (player: Mesh) => {
+    // camera should be slightly BEHIND player
+    const offset = new Vector3(0,2,3)
+    offset.applyQuaternion(player.quaternion) ;
+    offset.add(player.position)
+    return offset
+  }
+
+  const calcCameraLookAtNew = (player: Mesh) => {
+    // camera should look slightly BEYOND player
+    const lookAt = new Vector3(0,0,-5)
+    lookAt.applyQuaternion(player.quaternion);
+    lookAt.add(player.position)
+    return lookAt
+  }
+
+  // set initial camera position
+  useEffect(() => {
+    if (!refBox.current) return
+    const player = refBox.current
+    camera.position.copy(calcCameraOffsetNew(player))
+    camera.lookAt(calcCameraLookAtNew(player))
+  }, [])
 
   useFrame(() => {
     if (!refBox.current) return
-    // refBox.current.rotation.x += 0.01
-
     const player = refBox.current
 
     // any key pressed?
@@ -26,22 +48,13 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
     if (keysPressed.left || keysPressed.right) {
       const rotationShift = keysPressed.left ? 0.03 : -0.03
-      // player.rotation.y += rotationShift
-      // camera.rotation.y += rotationShift
 
-      // determine rotation quaternion
+      // determine rotation as quaternion
       const q = new Quaternion()
       q.setFromAxisAngle(new Vector3(0,1,0).normalize(), rotationShift)
 
-      // rotate player
+      // rotate player by given angle
       player.applyQuaternion(q)
-
-      // refocus player after doing position shift!
-      camera.lookAt(player.position)
-
-      // rotate camera position by the same angle
-      // camera.position.applyQuaternion(q)
-      // TODO: rotate POSIION of camera around object! (using same rotation quaternion!)
 
     }
 
@@ -50,27 +63,20 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
       const playerDirection = new Vector3()
       
       player.getWorldDirection(playerDirection)
-      // move player position in accordance to current orientation (=world direction) 
       const acceleration = keysPressed.up ? - 0.05 : 0.05
+      // move player position in accordance to current orientation (=world direction) 
       const positionShift = playerDirection.multiplyScalar(acceleration)
       player.position.add(positionShift)
 
-      // move camera accordingly in same direction as player
-      camera.position.add(positionShift)
-      camera.lookAt(player.position)      
-      
-      // const cameraOffset = new Vector3(0, 1, 3) // fixed distance from player
-      // const camTarget = new Vector3() 
-      // player.getWorldPosition(camTarget)
-      // camTarget.add(cameraOffset)
-      // camera.lookAt(camTarget)
     }
 
-    /**
-     * MOVE camera
-     * - if player rotated => rotate camera too!
-     * - if player moved by direction => move camera by that direction too!
-     */
+    // move camera
+    if (keysPressed.left || keysPressed.right || keysPressed.up || keysPressed.down) {
+      // calculate new POSITION
+      camera.position.copy(calcCameraOffsetNew(player))
+      // calculate new LOOK AT position
+      camera.lookAt(calcCameraLookAtNew(player))
+    }
 
   })
 

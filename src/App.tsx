@@ -11,7 +11,7 @@ function App() {
   const helpersVisible = true
 
   return (
-    <Canvas camera={{ position: [0,1,3] }}>
+    <Canvas camera={{ position: [-1, 1, 3] }}>
       <PlayerBox helper={false} />
       <Helpers visible={helpersVisible} />
       <Lighting helper={helpersVisible} />
