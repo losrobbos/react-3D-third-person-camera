@@ -10,17 +10,9 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
   const refBox = useRef<Mesh>(null!)
   const { keysPressed } = useInput()
 
-  useHelper(refBox, BoxHelper, "grey")
+  useHelper(helper && refBox, BoxHelper, "grey")
   const camera = useCamera()
 
-  /**
-   * TODO Apply movement by VECTOR (!) not by just single axis 
-   * TODO this allows us to move in ALL dimensions, not just on one axis!
-   * - first try to move by a unit vector on an axis
-   * - then try to move by some fixed diagonal direction vector
-   * - and finally: determine the direction vector from player object
-   *   - how??? follows... :)
-   */
   useFrame(() => {
     if (!refBox.current) return
     // refBox.current.rotation.x += 0.01
@@ -33,20 +25,30 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
     // }
 
     if (keysPressed.left || keysPressed.right) {
-      player.rotation.y += keysPressed.left ? 0.03 : -0.03
+      const rotationShift = keysPressed.left ? 0.03 : -0.03
+      player.rotation.y += rotationShift
+      // camera.rotation.y += rotationShift
+      // camera.lookAt(player.position)
     }
-    
+
     // perform MOVEMENT in direction
     if (keysPressed.up || keysPressed.down) {
       const playerDirection = new Vector3()
+      
       player.getWorldDirection(playerDirection)
       // move player position in accordance to current orientation (=world direction) 
       const acceleration = keysPressed.up ? - 0.05 : 0.05
-      const playerShift = playerDirection.multiplyScalar(acceleration)
-      player.position.add(playerShift)
+      const positionShift = playerDirection.multiplyScalar(acceleration)
+      player.position.add(positionShift)
 
-      // move player accordingly
-      camera.position.add(playerShift)
+      // move camera accordingly
+      camera.position.add(positionShift)
+      
+      // const cameraOffset = new Vector3(0, 1, 3) // fixed distance from player
+      // const camTarget = new Vector3() 
+      // player.getWorldPosition(camTarget)
+      // camTarget.add(cameraOffset)
+      // camera.lookAt(camTarget)
     }
 
     /**
@@ -59,9 +61,16 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
   return (
     <>
-      <mesh ref={(helper || null) && refBox}>
+      <mesh ref={refBox}>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color={"purple"} />
+        {/* <meshStandardMaterial color={"purple"} /> */}
+        <meshStandardMaterial attach="material-0" color="purple" />
+        <meshStandardMaterial attach="material-1" color="purple" />
+        <meshStandardMaterial attach="material-2" color="purple" />
+        <meshStandardMaterial attach="material-3" color="purple" />
+        <meshStandardMaterial attach="material-4" color="purple" />
+        {/* last material is the one facing in FRONT direction */}
+        <meshStandardMaterial attach="material-5" color="red" />
       </mesh>
     </>
   );
