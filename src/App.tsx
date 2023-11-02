@@ -5,20 +5,22 @@ import { Lighting } from './components/Lighting'
 import { Helpers } from './components/Helpers'
 import { RingOfFire } from './components/RingOfFire'
 import { Camera } from './components/Camera'
+import { Ground } from './components/Ground'
 
 function App() {
 
-  const helpersVisible = true
+  const helpersVisible = false
 
   return (
     <Canvas camera={{ position: [-1, 1, 3] }}>
-      <PlayerBox helper={false} />
+      <Ground />
+      <PlayerBox helper={helpersVisible} />
       <Helpers visible={helpersVisible} />
       <Lighting helper={helpersVisible} />
       <RingOfFire />
       {/* <OrbitControls /> */}
-      <Camera />
-      <Stats />
+      {/* <Camera /> */}
+      {/* <Stats /> */}
     </Canvas>
   )
 }

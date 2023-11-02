@@ -1,4 +1,4 @@
-import { useHelper } from "@react-three/drei";
+import { useGLTF, useHelper } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { BoxHelper, Mesh, Quaternion, Vector3 } from "three";
@@ -8,36 +8,36 @@ import { calcCameraLookAtNew, calcCameraOffsetNew } from "../utils/utils";
 
 export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
-  const refBox = useRef<Mesh>(null!)
+  const refPlayer = useRef<Mesh>(null!)
   const camera = useCamera()
   const { keysPressed } = useInput()
+  const { nodes } = useGLTF("./models/robot.glb") as any
+  const model = nodes["RootNode"] // "RobotArmature"
 
-
-  useHelper(helper && refBox, BoxHelper, "grey")
+  // useHelper(helper && refPlayer, BoxHelper, "grey")
 
   // set initial camera position
   useEffect(() => {
-    if (!refBox.current) return
-    const player = refBox.current
+    if (!refPlayer.current) return
+    const player = refPlayer.current
+
+    player.scale.set(0.3,0.3,0.3)
+
+    // position camera to view in player direction (= see world sneeking "behind players shoulder")
     camera.position.copy(calcCameraOffsetNew(player))
     camera.lookAt(calcCameraLookAtNew(player))
   }, [])
 
   useFrame(() => {
-    if (!refBox.current) return
-    const player = refBox.current
-
-    // any key pressed?
-    // if(Object.values(keysPressed).some(item => item)) {
-    //   console.log(keysPressed)
-    // }
+    if (!refPlayer.current) return
+    const player = refPlayer.current
 
     if (keysPressed.left || keysPressed.right) {
       const rotationShift = keysPressed.left ? 0.03 : -0.03
 
       // determine rotation as quaternion
       const q = new Quaternion()
-      q.setFromAxisAngle(new Vector3(0,1,0).normalize(), rotationShift)
+      q.setFromAxisAngle(new Vector3(0, 1, 0).normalize(), rotationShift)
 
       // rotate player by given angle
       player.applyQuaternion(q)
@@ -51,9 +51,9 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
     // perform MOVEMENT in direction
     if (keysPressed.up || keysPressed.down) {
       const playerDirection = new Vector3()
-      
+
       player.getWorldDirection(playerDirection)
-      const acceleration = keysPressed.up ? - 0.05 : 0.05
+      const acceleration = keysPressed.up ? 0.05 : -0.05
       // move player position in accordance to current orientation (=world direction) 
       // therefore we multiply the current DIRECTION vector by some reasonable value of "acceleration"
       // that value will simply determine, how much space forward / backward the character moves on a keystroke
@@ -69,17 +69,12 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
   return (
     <>
-      <mesh ref={refBox}>
-        <boxGeometry args={[1, 1, 1]} />
-        {/* <meshStandardMaterial color={"purple"} /> */}
-        <meshStandardMaterial attach="material-0" color="purple" />
-        <meshStandardMaterial attach="material-1" color="purple" />
-        <meshStandardMaterial attach="material-2" color="purple" />
-        <meshStandardMaterial attach="material-3" color="purple" />
-        <meshStandardMaterial attach="material-4" color="purple" />
-        {/* last material is the one facing in FRONT direction */}
-        <meshStandardMaterial attach="material-5" color="red" />
-      </mesh>
+      <object3D ref={refPlayer} >
+        {/* player mesh object is nested one level inside scene */}
+        <primitive object={model} />
+      </object3D>
     </>
   );
 }
+
+useGLTF.preload("./models/robot.glb")
