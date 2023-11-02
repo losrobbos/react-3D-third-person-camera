@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { act } from "react-dom/test-utils";
 
 interface IKeyMap {
   ArrowLeft: "left";

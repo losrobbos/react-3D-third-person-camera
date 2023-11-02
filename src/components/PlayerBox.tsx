@@ -16,7 +16,8 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
   const model = nodes["RootNode"] // "RobotArmature"
 
   const { actions } = useAnimations(animations, modelScene)
-  const { Idle, Walking, Running, Dance, Death, Jump, Wave, Yes, No, Punch, Sitting, Standing, ThumbsUp, WalkJump } = actions
+  const { Idle, Walking, Running, Jump, } = actions
+  // other animations for later usage: Dance, Death, Wave, Yes, No, Punch, Sitting, Standing, ThumbsUp, WalkJump
 
   useHelper(helper && refPlayer, BoxHelper, "grey")
 

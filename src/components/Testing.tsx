@@ -1,12 +1,14 @@
-import { BufferGeometry, Material, Mesh, NormalBufferAttributes, Object3DEventMap, Quaternion, Vector3 } from "three"
+import { BufferGeometry, Material, Mesh, NormalBufferAttributes, Object3DEventMap } from "three"
 
 interface Props {
   player: React.MutableRefObject<Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[], Object3DEventMap>>
 }
 
-export const Testing = ({ player }: Props) => {
+export const Testing = ({ player}: Props) => {
 
-  const vUnit = new Vector3(1,0,1)
+  console.log(player)
+
+  // const vUnit = new Vector3(1,0,1)
 
   // console.log("[1,0,1]", "normalized:" , new Vector3(1,0,1).normalize())
   // console.log("[2,0,2]", "normalized:" , new Vector3(2,0,2).normalize())
