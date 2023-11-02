@@ -12,6 +12,7 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
   const camera = useCamera()
   const { keysPressed } = useInput()
 
+
   useHelper(helper && refBox, BoxHelper, "grey")
 
   // set initial camera position
@@ -54,6 +55,9 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
       player.getWorldDirection(playerDirection)
       const acceleration = keysPressed.up ? - 0.05 : 0.05
       // move player position in accordance to current orientation (=world direction) 
+      // therefore we multiply the current DIRECTION vector by some reasonable value of "acceleration"
+      // that value will simply determine, how much space forward / backward the character moves on a keystroke
+      // the higher the value => the bigger the move
       const positionShift = playerDirection.multiplyScalar(acceleration)
       player.position.add(positionShift)
 
