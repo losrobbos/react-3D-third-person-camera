@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { BoxHelper, Mesh, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
+import { calcCameraLookAtNew, calcCameraOffsetNew } from "../utils/utils";
 
 export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
@@ -12,22 +13,6 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
   const { keysPressed } = useInput()
 
   useHelper(helper && refBox, BoxHelper, "grey")
-
-  const calcCameraOffsetNew = (player: Mesh) => {
-    // camera should be slightly BEHIND player
-    const offset = new Vector3(0,2,3)
-    offset.applyQuaternion(player.quaternion) ;
-    offset.add(player.position)
-    return offset
-  }
-
-  const calcCameraLookAtNew = (player: Mesh) => {
-    // camera should look slightly BEYOND player
-    const lookAt = new Vector3(0,0,-5)
-    lookAt.applyQuaternion(player.quaternion);
-    lookAt.add(player.position)
-    return lookAt
-  }
 
   // set initial camera position
   useEffect(() => {
@@ -56,6 +41,10 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
       // rotate player by given angle
       player.applyQuaternion(q)
 
+      // calculate new camera POSITION
+      camera.position.copy(calcCameraOffsetNew(player))
+      // calculate new LOOK AT position (only needed on player rotation)
+      camera.lookAt(calcCameraLookAtNew(player))
     }
 
     // perform MOVEMENT in direction
@@ -68,14 +57,8 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
       const positionShift = playerDirection.multiplyScalar(acceleration)
       player.position.add(positionShift)
 
-    }
-
-    // move camera
-    if (keysPressed.left || keysPressed.right || keysPressed.up || keysPressed.down) {
-      // calculate new POSITION
+      // calculate new camera POSITION
       camera.position.copy(calcCameraOffsetNew(player))
-      // calculate new LOOK AT position
-      camera.lookAt(calcCameraLookAtNew(player))
     }
 
   })
