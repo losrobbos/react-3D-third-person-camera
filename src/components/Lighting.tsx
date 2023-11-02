@@ -9,7 +9,13 @@ export const Lighting = ({ helper = false }: { helper?: boolean }) => {
 
   return <>
     <ambientLight />
-    {/* <directionalLight ref={(helper || null) && refDirLight} color={"white"} intensity={10} position={[5, 0, -5]} /> */}
+    <directionalLight
+      castShadow
+      ref={(helper || null) && refDirLight} 
+      color={"white"} 
+      intensity={5} 
+      position={[4, 3, -4]} 
+    />
   </>
 }
 

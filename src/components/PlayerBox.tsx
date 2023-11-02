@@ -1,20 +1,24 @@
-import { useGLTF, useHelper } from "@react-three/drei";
+import { useAnimations, useGLTF, useHelper } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import { BoxHelper, Mesh, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
 import { calcCameraLookAtNew, calcCameraOffsetNew } from "../utils/utils";
+import { GLTFResult } from "../types/GLTFResult";
 
 export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
   const refPlayer = useRef<Mesh>(null!)
   const camera = useCamera()
   const { keysPressed } = useInput()
-  const { nodes } = useGLTF("./models/robot.glb") as any
+  const { animations, nodes, scene: modelScene } = useGLTF("./models/robot.glb") as GLTFResult
   const model = nodes["RootNode"] // "RobotArmature"
 
-  // useHelper(helper && refPlayer, BoxHelper, "grey")
+  const { actions } = useAnimations(animations, modelScene)
+  const { Idle, Walking, Running, Dance, Death, Jump, Wave, Yes, No, Punch, Sitting, Standing, ThumbsUp, WalkJump } = actions
+
+  useHelper(helper && refPlayer, BoxHelper, "grey")
 
   // set initial camera position
   useEffect(() => {
@@ -23,9 +27,20 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
     player.scale.set(0.3,0.3,0.3)
 
+    // parts of model should all cast shadow on ground!
+
+    player.traverse((obj) => {
+      if(obj instanceof Mesh) {
+        obj.castShadow = true;
+      }
+    })
+
     // position camera to view in player direction (= see world sneeking "behind players shoulder")
     camera.position.copy(calcCameraOffsetNew(player))
     camera.lookAt(calcCameraLookAtNew(player))
+
+    // start initial animation
+    Idle?.play()
   }, [])
 
   useFrame(() => {
@@ -63,13 +78,31 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
       // calculate new camera POSITION
       camera.position.copy(calcCameraOffsetNew(player))
+
+      if(keysPressed.shift) {
+        Walking?.stop()
+        Running?.play()
+      }
+      else {
+        Running?.stop()
+        Walking?.play()
+      }
+    }
+    // not moving
+    else {
+      Walking?.fadeOut(2).stop()
+      Running?.fadeOut(2).stop()
+
+      if(keysPressed.space) {
+        Jump?.reset().play().fadeOut(2)
+      }
     }
 
   })
 
   return (
     <>
-      <object3D ref={refPlayer} >
+      <object3D ref={refPlayer}>
         {/* player mesh object is nested one level inside scene */}
         <primitive object={model} />
       </object3D>

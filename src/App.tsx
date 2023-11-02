@@ -4,7 +4,6 @@ import { Stats } from '@react-three/drei'
 import { Lighting } from './components/Lighting'
 import { Helpers } from './components/Helpers'
 import { RingOfFire } from './components/RingOfFire'
-import { Camera } from './components/Camera'
 import { Ground } from './components/Ground'
 
 function App() {
@@ -12,7 +11,7 @@ function App() {
   const helpersVisible = false
 
   return (
-    <Canvas camera={{ position: [-1, 1, 3] }}>
+    <Canvas camera={{ position: [-1, 1, 3] }} shadows>
       <Ground />
       <PlayerBox helper={helpersVisible} />
       <Helpers visible={helpersVisible} />

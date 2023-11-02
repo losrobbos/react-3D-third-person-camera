@@ -13,9 +13,9 @@ export const Ground = ({ width = 16, height = 16 }) => {
   }, [])
 
   return (
-    <mesh ref={ref} position={[0, 0, 0]}>
+    <mesh ref={ref} position={[0, 0, 0]} receiveShadow>
       <planeGeometry args={[width, height, 20, 20]} />
-      <meshStandardMaterial color={"lightgreen"} side={DoubleSide} wireframe />
+      <meshStandardMaterial color={"purple"} side={DoubleSide} />
     </mesh>
   )
 }
