@@ -10,11 +10,11 @@ export const Lighting = ({ helper = false }: { helper?: boolean }) => {
   return <>
     <ambientLight />
     <directionalLight
-      castShadow
+      position={[4, 4, 1]} 
       ref={(helper || null) && refDirLight} 
       color={"white"} 
       intensity={5} 
-      position={[4, 3, -4]} 
+      castShadow
     />
   </>
 }
