@@ -32,10 +32,11 @@ export const useInput = () => {
     if (e.key in KEY_MAP) {
       const KEY = KEY_MAP[e.key as keyof IKeyMap];
 
-      setKeysPressed({
-        ...keysPressed,
+      // prevent stale closure state data by using callback (!) syntax of state of setter function 
+      setKeysPressed((previous) => ({
+        ...previous,
         [KEY]: active,
-      });
+      }));
     }
   };
 
@@ -43,10 +44,6 @@ export const useInput = () => {
 
   const unsetKey = (e: KeyboardEvent) => toggleKey(e, false);
 
-  /**
-   * ! WARNING: Event listeners must alwas be RE-created on state change
-   * This way we prevent stale state snapshot data in listeners
-   */
   useEffect(() => {
 
     // register keyboard events once
@@ -58,7 +55,7 @@ export const useInput = () => {
       document.removeEventListener("keydown", setKey);
       document.removeEventListener("keyup", unsetKey);
     };
-  }, [keysPressed]);
+  }, []);
 
   return { keysPressed, setKeysPressed };
 };
