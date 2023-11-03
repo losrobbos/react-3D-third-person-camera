@@ -17,9 +17,6 @@ function App() {
       <Helpers visible={helpersVisible} />
       <Lighting helper={helpersVisible} />
       <RingOfFire />
-      {/* <OrbitControls /> */}
-      {/* <Camera /> */}
-      {/* <Stats /> */}
     </Canvas>
   )
 }

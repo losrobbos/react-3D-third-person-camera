@@ -13,7 +13,7 @@ export const RingOfFire = () => {
   return (
     <mesh ref={ref} position={[-3.5, 1.3, -3.5]} castShadow receiveShadow>
       <torusGeometry args={[1, 0.1]}/>
-      <meshStandardMaterial color={"orange"} />
+      <meshStandardMaterial color={[0.8, 0.8,0.4]} />
     </mesh>
   )
 }
