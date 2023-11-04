@@ -1,5 +1,5 @@
 import { useAnimations, useGLTF, useHelper } from "@react-three/drei";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import { AnimationAction, BoxHelper, LoopOnce, Mesh, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
@@ -9,28 +9,38 @@ import { GLTFResult } from "../types/GLTFResult";
 
 type ModelAction = "Idle" | "Walking" | "Running" | "Jump" | "Dance" | "Death" | "Wave" | "ThumbsUp"
 
-export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
+type Props = {
+  helper?: boolean
+}
 
-  const refPlayer = useRef<Mesh>(null!)
+export const PlayerBox = ({ helper = false }: Props) => {
+
   const camera = useCamera()
   const { keysPressed } = useInput()
   const [animationCurrent, setAnimationCurrent] = useState("Idle")
-  const { animations, scene: modelScene } = useGLTF("./models/robot.glb") as GLTFResult
-  // const { animations, nodes, scene: modelScene } = useGLTF("./models/robot.glb") as GLTFResult
-  const model = modelScene // nodes["RootNode"] // nodes["RobotArmature"]
+  const { animations, nodes } = useGLTF("./models/robot.glb") as GLTFResult
+  const scene = useThree(state => state.scene)
+  const refPlayer = useRef<Mesh>(null!)
 
-  const { actions } = useAnimations(animations, modelScene)
+  const model = nodes["RootNode"] // the actual model
+  const modelBB = nodes["RobotArmature"] // the core "rumpf" of the model => ideal for usage as bounding box!
+
+  const refHelper = useRef(modelBB)
+  const { actions } = useAnimations(animations, model)
   // const { Idle, Walking, Running, Jump, Dance, Death } = actions
   // other animations for later usage: Dance, Death, Wave, Yes, No, Punch, Sitting, Standing, ThumbsUp, WalkJump
 
-  useHelper(helper && refPlayer, BoxHelper, "grey")
+  // use robot armature as helper reference, because it has a bounding box limited to the core
+  useHelper(helper && refHelper, BoxHelper, "grey")
 
   // set initial camera position
   useEffect(() => {
     if (!refPlayer.current) return
     const player = refPlayer.current
+    // console.log("Model ref:", player)
 
     player.scale.set(0.3, 0.3, 0.3)
+    // console.log("Model ref after scale:", player)
 
     // parts of model should all cast shadow on ground!
 
@@ -58,7 +68,7 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
     const player = refPlayer.current
 
     // step 1: determine new animation
-    let actionToPlay : ModelAction = "Idle"
+    let actionToPlay: ModelAction = "Idle"
 
     // check if at MAGIC position point => play DANCE :)
     // TODO: grab torus object3D by NAME from scene (using useThree!)
@@ -68,33 +78,33 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
     // check position overlap
     if (player.position.z >= -4 && player.position.z <= -3 &&
       player.position.x >= -4 && player.position.x <= -3) {
-        actionToPlay = "Dance"
+      actionToPlay = "Dance"
     }
 
     // MOVEMENT ?
-    if(keysPressed.up || keysPressed.down) {
+    if (keysPressed.up || keysPressed.down) {
       actionToPlay = "Walking"
       if (keysPressed.shift) {
         actionToPlay = "Running"
       }
     }
     // JUMPING?
-    else if(keysPressed.space) {
+    else if (keysPressed.space) {
       actionToPlay = "Jump"
     }
 
     // check if out of bounds => play DEATH
-    if(Math.abs(player.position.z) >= 8 || Math.abs(player.position.x) >= 8) {
+    if (Math.abs(player.position.z) >= 8 || Math.abs(player.position.x) >= 8) {
       actionToPlay = "Death"
-    } 
+    }
 
     // setup 2: run animation (if changed)
-    if(actionToPlay === animationCurrent) return
+    if (actionToPlay === animationCurrent) return
 
     const actionCurrent = actions[animationCurrent] as AnimationAction
     const actionNew = actions[actionToPlay] as AnimationAction
 
-    if(actionToPlay !== "Death" && actionToPlay !== "Dance" ) {
+    if (actionToPlay !== "Death" && actionToPlay !== "Dance") {
       // actions[animationCurrent]?.crossFadeTo(actions[actionToPlay] as AnimationAction, 0.5, true)
       actionCurrent.fadeOut(0.5)
       // animation must get resetted because if it was already played it is usually stuck in "end" state
@@ -115,10 +125,16 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
   /**
    * Every Frame => MOVE player in current active direction (left, right, up, down)
+   * + check collisions with world objects!
    */
   useFrame(() => {
     if (!refPlayer.current) return
     const player = refPlayer.current
+
+    if(keysPressed.enter) {
+      console.log("Enter pressed...")
+      console.log(scene.getObjectByName("RingOfFire"))
+    }
 
     // perform ROTATION (of player + camera)
     if (keysPressed.left || keysPressed.right) {
@@ -159,10 +175,10 @@ export const PlayerBox = ({ helper = false }: { helper?: boolean }) => {
 
   return (
     <>
-      <object3D ref={refPlayer}>
-        {/* player mesh object is nested one level inside scene */}
-        <primitive object={model} />
-      </object3D>
+      {/* <object3D ref={refPlayer}> */}
+      {/* player mesh object is nested one level inside scene */}
+      <primitive ref={refPlayer} object={model} />
+      {/* </object3D> */}
     </>
   );
 }

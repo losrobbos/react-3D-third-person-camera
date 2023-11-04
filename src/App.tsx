@@ -13,10 +13,10 @@ function App() {
     <Canvas camera={{ position: [-1, 1, 3] }} shadows>
       {/* <color args={[0.2,0,1]} attach="background" /> */}
       <Ground />
-      <PlayerBox helper={helpersVisible} />
+      <PlayerBox helper={true} />
+      <RingOfFire helper={true} />
       <Helpers visible={helpersVisible} />
       <Lighting helper={helpersVisible} />
-      <RingOfFire />
     </Canvas>
   )
 }

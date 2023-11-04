@@ -6,6 +6,7 @@ interface IKeyMap {
   ArrowUp: "up";
   ArrowDown: "down";
   Shift: "shift";
+  Enter: "enter"
   " ": "space";
 }
 
@@ -15,6 +16,7 @@ const KEY_MAP: IKeyMap = {
   ArrowUp: "up",
   ArrowDown: "down",
   Shift: "shift",
+  Enter: "enter",
   " ": "space",
 };
 
@@ -26,6 +28,7 @@ export const useInput = () => {
     right: false,
     space: false,
     shift: false,
+    enter: false
   });
 
   const toggleKey = (e: KeyboardEvent, active: boolean) => {
