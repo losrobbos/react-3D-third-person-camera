@@ -133,7 +133,12 @@ export const PlayerBox = ({ helper = false }: Props) => {
 
     if(keysPressed.enter) {
       console.log("Enter pressed...")
-      console.log(scene.getObjectByName("RingOfFire"))
+      const torus = scene.getObjectByName("RingOfFire")
+      if(torus) {
+        // TODO: determine collision of bounding boxes!
+
+        // scene.remove(torus) // works!
+      }
     }
 
     // perform ROTATION (of player + camera)
