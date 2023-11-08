@@ -1,24 +1,25 @@
 import { useAnimations, useGLTF, useHelper } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { AnimationAction, BoxHelper, LoopOnce, Mesh, Quaternion, Vector3 } from "three";
+import { AnimationAction, Box3, BoxHelper, LoopOnce, Mesh, Object3D, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
-import { calcCameraLookAtNew, calcCameraOffsetNew } from "../utils/utils";
+import { calcCameraLookAtNew, calcCameraOffsetNew, setModelBoundingBox, updateModelBoundingBox } from "../utils/utils";
 import { GLTFResult } from "../types/GLTFResult";
 
 type ModelAction = "Idle" | "Walking" | "Running" | "Jump" | "Dance" | "Death" | "Wave" | "ThumbsUp"
 
 type Props = {
+  position?: [number, number, number],
   helper?: boolean
 }
 
-export const PlayerBox = ({ helper = false }: Props) => {
+export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
 
   const camera = useCamera()
   const { keysPressed } = useInput()
   const [animationCurrent, setAnimationCurrent] = useState("Idle")
-  const { animations, nodes } = useGLTF("./models/robot.glb") as GLTFResult
+  const { animations, nodes, scene: sceneModel } = useGLTF("./models/robot.glb") as GLTFResult
   const scene = useThree(state => state.scene)
   const refPlayer = useRef<Mesh>(null!)
 
@@ -31,19 +32,22 @@ export const PlayerBox = ({ helper = false }: Props) => {
   // other animations for later usage: Dance, Death, Wave, Yes, No, Punch, Sitting, Standing, ThumbsUp, WalkJump
 
   // use robot armature as helper reference, because it has a bounding box limited to the core
+  // useHelper(helper && refPlayer, BoxHelper, "grey")
   useHelper(helper && refHelper, BoxHelper, "grey")
 
-  // set initial camera position
+  // set initial player & camera position
   useEffect(() => {
     if (!refPlayer.current) return
     const player = refPlayer.current
-    // console.log("Model ref:", player)
+
+    player.position.set(...position)
 
     player.scale.set(0.3, 0.3, 0.3)
-    // console.log("Model ref after scale:", player)
+
+    // compute bounding box
+    setModelBoundingBox(player)
 
     // parts of model should all cast shadow on ground!
-
     player.traverse((obj) => {
       if (obj instanceof Mesh) {
         obj.castShadow = true;
@@ -51,8 +55,8 @@ export const PlayerBox = ({ helper = false }: Props) => {
     })
 
     // position camera to view in player direction (= see world sneeking "behind players shoulder")
-    camera.position.copy(calcCameraOffsetNew(player))
-    camera.lookAt(calcCameraLookAtNew(player))
+    // camera.position.copy(calcCameraOffsetNew(player))
+    // camera.lookAt(calcCameraLookAtNew(player))
 
     // start initial animation
     actions[animationCurrent]?.play()
@@ -74,12 +78,10 @@ export const PlayerBox = ({ helper = false }: Props) => {
     // TODO: grab torus object3D by NAME from scene (using useThree!)
     // TODO: check position from torus object dynamically instead of hardcoded
     // const torusPosition = new Vector3(-3.5, 1.3, -3.5)
-
-    // check position overlap
-    if (player.position.z >= -4 && player.position.z <= -3 &&
-      player.position.x >= -4 && player.position.x <= -3) {
-      actionToPlay = "Dance"
-    }
+    // check collision controlled!
+    // if (keysPressed.enter) {
+      // console.log("Enter pressed...")
+    // }
 
     // MOVEMENT ?
     if (keysPressed.up || keysPressed.down) {
@@ -88,8 +90,36 @@ export const PlayerBox = ({ helper = false }: Props) => {
         actionToPlay = "Running"
       }
     }
+
+    const torus = scene.getObjectByName("RingOfFire")
+    // determine collision of bounding boxes!
+    if (torus && player.userData.boundingBox && torus.userData.boundingBox) {
+      const playerBB = player.userData.boundingBox as Box3
+      const torusBB = torus.userData.boundingBox as Box3
+      // console.log("Player BB Size", playerBB.getSize(new Vector3()))
+      // console.log("Torus BB Size", torusBB.getSize(new Vector3()))
+      // console.log("Player BB Center", playerBB.getCenter(new Vector3()))
+      // console.log("Torus BB Center", torusBB.getCenter(new Vector3()))
+      // // console.log("Torus BB", torus.userData.boundingBox)
+      // console.log("-- Intersecting: ", playerBB.intersectsBox(torusBB))
+      // scene.remove(torus) // works!
+      if (playerBB.intersectsBox(torusBB)) {
+        console.log("!!! INTERSECT !!!")
+        torus.remove()
+        actionToPlay = "Dance"
+      }
+
+    }
+
+
+    // check position overlap
+    // if (player.position.z >= -4 && player.position.z <= -3 &&
+    //   player.position.x >= -4 && player.position.x <= -3) {
+    //   actionToPlay = "Dance"
+    // }
+
     // JUMPING?
-    else if (keysPressed.space) {
+    if (keysPressed.space) {
       actionToPlay = "Jump"
     }
 
@@ -131,15 +161,8 @@ export const PlayerBox = ({ helper = false }: Props) => {
     if (!refPlayer.current) return
     const player = refPlayer.current
 
-    if(keysPressed.enter) {
-      console.log("Enter pressed...")
-      const torus = scene.getObjectByName("RingOfFire")
-      if(torus) {
-        // TODO: determine collision of bounding boxes!
-
-        // scene.remove(torus) // works!
-      }
-    }
+    // updae BOUNDING box of player
+    updateModelBoundingBox(player)
 
     // perform ROTATION (of player + camera)
     if (keysPressed.left || keysPressed.right) {
@@ -174,6 +197,8 @@ export const PlayerBox = ({ helper = false }: Props) => {
 
       // calculate new camera POSITION
       camera.position.copy(calcCameraOffsetNew(player))
+      // calculate new LOOK AT position (only needed on player rotation)
+      camera.lookAt(calcCameraLookAtNew(player))
     }
 
   })
@@ -183,6 +208,7 @@ export const PlayerBox = ({ helper = false }: Props) => {
       {/* <object3D ref={refPlayer}> */}
       {/* player mesh object is nested one level inside scene */}
       <primitive ref={refPlayer} object={model} />
+      {/* <primitive object={model} /> */}
       {/* </object3D> */}
     </>
   );
