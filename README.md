@@ -37,7 +37,8 @@ https://github.com/mrdoob/three.js/tree/dev/examples/models/gltf
 
 ## Planned features
 
-Currently none. Proof of Concept done :)
+- Add Scene Background with Images Cube (=Skybox / Environment Map)
+
 
 ## Planned Bugfixes
 
