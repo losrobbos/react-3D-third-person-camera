@@ -14,6 +14,8 @@ type Props = {
   helper?: boolean
 }
 
+const playerSize = new Vector3()
+
 export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
 
   const camera = useCamera()
@@ -23,7 +25,7 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
   const scene = useThree(state => state.scene)
   const refPlayer = useRef<Mesh>(null!)
 
-  const model = nodes["RootNode"] // the actual model
+  const model = sceneModel // nodes["RootNode"] // the actual model
   const modelBB = nodes["RobotArmature"] // the core "rumpf" of the model => ideal for usage as bounding box!
 
   const refHelper = useRef(modelBB)
@@ -40,12 +42,9 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
     if (!refPlayer.current) return
     const player = refPlayer.current
 
-    player.position.set(...position)
+    // player.position.set(...position)
 
-    player.scale.set(0.3, 0.3, 0.3)
-
-    // compute bounding box
-    setModelBoundingBox(player)
+    player.scale.set(0.4, 0.4, 0.4)
 
     // parts of model should all cast shadow on ground!
     player.traverse((obj) => {
@@ -53,6 +52,9 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
         obj.castShadow = true;
       }
     })
+
+    // compute bounding box
+    setModelBoundingBox(player, modelBB, playerSize)
 
     // position camera to view in player direction (= see world sneeking "behind players shoulder")
     // camera.position.copy(calcCameraOffsetNew(player))
@@ -74,15 +76,6 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
     // step 1: determine new animation
     let actionToPlay: ModelAction = "Idle"
 
-    // check if at MAGIC position point => play DANCE :)
-    // TODO: grab torus object3D by NAME from scene (using useThree!)
-    // TODO: check position from torus object dynamically instead of hardcoded
-    // const torusPosition = new Vector3(-3.5, 1.3, -3.5)
-    // check collision controlled!
-    // if (keysPressed.enter) {
-      // console.log("Enter pressed...")
-    // }
-
     // MOVEMENT ?
     if (keysPressed.up || keysPressed.down) {
       actionToPlay = "Walking"
@@ -96,27 +89,17 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
     if (torus && player.userData.boundingBox && torus.userData.boundingBox) {
       const playerBB = player.userData.boundingBox as Box3
       const torusBB = torus.userData.boundingBox as Box3
-      // console.log("Player BB Size", playerBB.getSize(new Vector3()))
-      // console.log("Torus BB Size", torusBB.getSize(new Vector3()))
-      // console.log("Player BB Center", playerBB.getCenter(new Vector3()))
-      // console.log("Torus BB Center", torusBB.getCenter(new Vector3()))
-      // // console.log("Torus BB", torus.userData.boundingBox)
-      // console.log("-- Intersecting: ", playerBB.intersectsBox(torusBB))
-      // scene.remove(torus) // works!
       if (playerBB.intersectsBox(torusBB)) {
         console.log("!!! INTERSECT !!!")
-        torus.remove()
         actionToPlay = "Dance"
+        // remove collided object with delay
+        setTimeout(()=> {
+          scene.remove(torus)
+        }, 3000)
       }
 
     }
 
-
-    // check position overlap
-    // if (player.position.z >= -4 && player.position.z <= -3 &&
-    //   player.position.x >= -4 && player.position.x <= -3) {
-    //   actionToPlay = "Dance"
-    // }
 
     // JUMPING?
     if (keysPressed.space) {
@@ -162,7 +145,7 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
     const player = refPlayer.current
 
     // updae BOUNDING box of player
-    updateModelBoundingBox(player)
+    updateModelBoundingBox(player, modelBB)
 
     // perform ROTATION (of player + camera)
     if (keysPressed.left || keysPressed.right) {

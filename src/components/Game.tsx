@@ -5,7 +5,7 @@ import { RingOfFire } from './RingOfFire'
 import { Ground } from './Ground'
 import { Physics, RigidBody } from '@react-three/rapier'
 
-const helpersVisible = true
+const helpersVisible = false
 
 export const Game = () => {
 
@@ -14,14 +14,10 @@ export const Game = () => {
       <RigidBody name="Ground-Colly" >
         <Ground />
       </RigidBody>
-      {/* <RigidBody name="Player-Colly" colliders={"hull"}> */}
-        <PlayerBox helper={true} />
-      {/* </RigidBody> */}
-      {/* <RigidBody name="Torus-Colly"  > */}
-        <RingOfFire helper={true} />
-      {/* </RigidBody> */}
+      <PlayerBox helper={helpersVisible} />
+      <RingOfFire helper={helpersVisible} />
       <Lighting helper={helpersVisible} />
-      <Helpers visible={false} />
+      <Helpers visible={helpersVisible} />
     </Physics>
 
   )

@@ -1,30 +1,23 @@
-import { Box3, Mesh, Object3D, Vector3 } from "three";
-import { OBB } from "three/addons/math/OBB.js";
+import { Box3, BoxHelper, Mesh, Object3D, Vector3 } from "three";
 
-export const setModelBoundingBox = (model: Object3D, debug = false) => {
-  const modelBB = new Box3().setFromObject(model, true);
-  const modelOBB = new OBB().fromBox3(modelBB)
+export const setModelBoundingBox = (modelOrig: Object3D, modelHelper: Object3D, size: Vector3, debug = false) => {
+
+  const helper = new BoxHelper(modelHelper);
+  helper.geometry.computeBoundingBox();
+  modelOrig.userData.boundingBox = helper.geometry.boundingBox;
   if(debug) {
-    console.log("--PlayerBB Size: ", modelBB.getSize(new Vector3()));
-    console.log("--PlayerBB  Center: ", modelBB.getCenter(new Vector3()));
+    console.log("--PlayerHELPER Size:", helper.geometry.boundingBox?.getSize(size));
   }
-  model.userData.boundingBox = modelBB;
-  model.userData.obb = modelOBB
-  return model;
+  return modelOrig;
 };
 
-export const updateModelBoundingBox = (model: Object3D) => {
-    // if (model.userData.obb) {
-    //   const obb = model.userData.obb as OBB;
-    //   obb.setFromObject(model, true);
-    //   obb.applyMatrix4(model.matrixWorld);
-    // }
-    if (model.userData.boundingBox) {
-      const bb = model.userData.boundingBox as Box3;
-      bb.setFromObject(model, true);
-      bb.applyMatrix4(model.matrixWorld);
-    }
-
+export const updateModelBoundingBox = (modelOrig: Object3D, modelHelper: Object3D) => {
+  // use HELPER Bounding box instead of model bounding box
+  // way more accurate!
+  const helper = new BoxHelper(modelHelper);
+  helper.geometry.computeBoundingBox();
+  modelOrig.userData.boundingBox = helper.geometry.boundingBox
+  // modelOrig.userData.boundingBox.applyMatrix4(modelHelper.matrixWorld)
 }
 
 export const calcCameraOffsetNew = (player: Mesh) => {
