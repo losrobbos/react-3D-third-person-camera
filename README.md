@@ -32,7 +32,8 @@ https://github.com/mrdoob/three.js/tree/dev/examples/models/gltf
 - Collision Check
   - determine collision between player model object & torus ring
   - apply Bounding boxes for collision detection
-  - on collision: remove Torus ring from scene 
+  - on collision: play robot "recharge" animation
+  - on collision: remove Torus ring from scene
 
 ## Planned features
 
