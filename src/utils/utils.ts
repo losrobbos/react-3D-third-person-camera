@@ -1,4 +1,4 @@
-import { Box3, BoxHelper, Mesh, Object3D, Vector3 } from "three";
+import { BoxHelper, Mesh, Object3D, Vector3 } from "three";
 
 export const setModelBoundingBox = (modelOrig: Object3D, modelHelper: Object3D, size: Vector3, debug = false) => {
 

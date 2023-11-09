@@ -1,7 +1,7 @@
 import { useAnimations, useGLTF, useHelper } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { AnimationAction, Box3, BoxHelper, LoopOnce, Mesh, Object3D, Quaternion, Vector3 } from "three";
+import { AnimationAction, Box3, BoxHelper, LoopOnce, Mesh, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
 import { calcCameraLookAtNew, calcCameraOffsetNew, setModelBoundingBox, updateModelBoundingBox } from "../utils/utils";
@@ -42,7 +42,7 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
     if (!refPlayer.current) return
     const player = refPlayer.current
 
-    // player.position.set(...position)
+    player.position.set(...position)
 
     player.scale.set(0.4, 0.4, 0.4)
 
