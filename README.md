@@ -23,7 +23,8 @@ https://github.com/mrdoob/three.js/tree/dev/examples/models/gltf
 - Allow keyboard input from user to control character
   - Rotate character on left / right keys
   - Move character forward / backward on arrow up / down keys
-  - Play running animation when holding shift
+  - Play running animation when holding shift key together with up/down key
+  - Play jump animation when holding space key
 - Animations
   - Implement player animations: idle, walk, running
   - Out of scene bounds check: Play death animation
