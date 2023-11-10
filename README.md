@@ -37,6 +37,7 @@ https://github.com/mrdoob/three.js/tree/dev/examples/models/gltf
 
 ## Planned features
 
+- Add more models into the scene which player can not walk through (=rigid body objects)
 - Add Scene Background with Images Cube (=Skybox / Environment Map)
 
 
