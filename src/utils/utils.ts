@@ -22,7 +22,8 @@ export const updateModelBoundingBox = (modelOrig: Object3D, modelHelper: Object3
 
 export const calcCameraOffsetNew = (player: Mesh) => {
   // camera should be slightly BEHIND player
-  const offset = new Vector3(0, 2, -3);
+  // const offset = new Vector3(0, 2, -3);
+  const offset = new Vector3(0, 2, -4);
   offset.applyQuaternion(player.quaternion);
   offset.add(player.position);
   return offset;
