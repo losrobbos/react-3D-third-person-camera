@@ -5,6 +5,7 @@ import { RingOfFire } from './RingOfFire'
 import { Ground } from './Ground'
 import { Physics, RigidBody } from '@react-three/rapier'
 import { Trees } from './Trees'
+import { Environment } from '@react-three/drei'
 
 const helpersVisible = false
 
@@ -12,6 +13,7 @@ export const Game = () => {
 
   return (
     <Physics>
+      <Environment preset="forest" background />
       <RigidBody name="Ground-Colly" >
         <Ground />
       </RigidBody>

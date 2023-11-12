@@ -1,7 +1,6 @@
 import { useGLTF } from "@react-three/drei"
 import { ThreeElements } from "@react-three/fiber"
 import { useMemo, useState } from "react"
-import { Quaternion } from "three"
 
 const mapInitial = [
   '             ',
