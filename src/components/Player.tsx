@@ -1,7 +1,7 @@
 import { useAnimations, useGLTF, useHelper } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
-import { AnimationAction, Box3, BoxHelper, LoopOnce, Mesh, Quaternion, Vector3 } from "three";
+import { AnimationAction, Box3, BoxHelper, BufferGeometry, LoopOnce, Material, Mesh, NormalBufferAttributes, Object3DEventMap, Quaternion, Vector3 } from "three";
 import { useInput } from "../hooks/useInput";
 import { useCamera } from "../hooks/useCamera";
 import { calcCameraLookAtNew, calcCameraOffsetNew, setModelBoundingBox, updateModelBoundingBox } from "../utils/utils";
@@ -16,7 +16,7 @@ type Props = {
 
 const playerSize = new Vector3()
 
-export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
+export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
 
   const camera = useCamera()
   const { keysPressed } = useInput()
@@ -84,9 +84,10 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
       }
     }
 
-    const torus = scene.getObjectByName("RingOfFire")
+    const torus = scene.getObjectByName("RingOfFire") as 
+      Mesh<BufferGeometry<NormalBufferAttributes>, Material | Material[], Object3DEventMap>
     // determine collision of bounding boxes!
-    if (torus && player.userData.boundingBox && torus.userData.boundingBox) {
+    if (torus && player && player.userData.boundingBox && torus.userData.boundingBox) {
       const playerBB = player.userData.boundingBox as Box3
       const torusBB = torus.userData.boundingBox as Box3
       if (playerBB.intersectsBox(torusBB)) {
@@ -94,6 +95,7 @@ export const PlayerBox = ({ helper = false, position = [0, 0, 0] }: Props) => {
         actionToPlay = "Dance"
         // remove collided object with delay
         setTimeout(()=> {
+          torus.geometry.dispose();
           scene.remove(torus)
         }, 3000)
       }
