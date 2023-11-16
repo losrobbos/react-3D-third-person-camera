@@ -48,8 +48,6 @@ export const Trees = () => {
         // ignore non tree cells
         if (col !== "*") return
 
-
-
         // create instance
         // console.log({ r,c })
         const instance = treeModel.clone(true)

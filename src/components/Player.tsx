@@ -153,10 +153,10 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
 
     if (actionToPlay !== "Death" && actionToPlay !== "Dance") {
       // actions[animationCurrent]?.crossFadeTo(actions[actionToPlay] as AnimationAction, 0.5, true)
-      actionCurrent.fadeOut(0.5)
+      actionCurrent.fadeOut(0.1)
       // animation must get resetted because if it was already played it is usually stuck in "end" state
       // reset re-starts the animation track from beginning!
-      actionNew.reset().fadeIn(0.5).play()
+      actionNew.reset().fadeIn(0.1).play()
     }
     // death animation (=> only once pleaaase :)
     else {
@@ -204,7 +204,8 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
       const playerDirection = new Vector3()
 
       player.getWorldDirection(playerDirection)
-      const acceleration = keysPressed.up ? 0.05 : -0.05
+      let acceleration = keysPressed.up ? 0.05 : -0.05
+      if(keysPressed.shift) acceleration *= 2
       // move player position in accordance to current orientation (=world direction) 
       // therefore we multiply the current DIRECTION vector by some reasonable value of "acceleration"
       // that value will simply determine, how much space forward / backward the character moves on a keystroke
