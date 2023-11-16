@@ -22,7 +22,7 @@ const map2Dim = mapInitial.map(row => {
 
 export const Trees = () => {
 
-  const [map, setMap] = useState(map2Dim)
+  const [map] = useState(map2Dim)
 
   const model = useGLTF("models/birch_tree.glb")
   // const model = useGLTF("models/laurel_tree.glb")
