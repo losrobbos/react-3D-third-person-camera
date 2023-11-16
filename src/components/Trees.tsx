@@ -1,15 +1,17 @@
 import { useGLTF } from "@react-three/drei"
-import { ThreeElements } from "@react-three/fiber"
 import { useMemo, useState } from "react"
 
 const mapInitial = [
+  '      * *    ',
+  '           * ',
   '             ',
-  '  *        * ',
-  '   *      *  ',
   '             ',
   '             ',
-  '   *      *  ',
-  '  *        * ',
+  '             ',
+  '*            ',
+  '             ',
+  '*         *  ',
+  ' *         * ',
   '             ',
 ]
 
@@ -30,31 +32,37 @@ export const Trees = () => {
   const trees = useMemo(() => {
     const jsxTreesList: Array<any> = []
     const treeModels = model.scene.children[0].children[0].children
-    console.log(treeModels)
-    // todo: onload => create model INSTANCES from loaded model
+    
+    // onload => create model INSTANCES from loaded model
     // and place them in scene (everywhere where * char is)
     map.forEach((row, r) => {
       row.forEach((col, c) => {
+        // ignore non tree cells
         if (col !== "*") return
-        // todo: create instance
 
+        // create instance
+        // console.log({ r,c })
         const instance = treeModels[0].clone(true)
         instance.scale.set(0.2,0.2,0.2)
         instance.position.set(c-4,0,r-4)
-        // rotate around X / Z axis
+        // rotate around X axis to "lift up"
+        
+        // rotate each item random slightly around Y axis 
+        // makes scene more unique)
+        instance.rotateY(-Math.PI/ (Math.floor(Math.random()*10)) )
         instance.rotateX(-Math.PI/2)
+
         // instance.applyQuaternion(new Quaternion().setFromEuler())
-        console.log({ r,c })
-        // instance.scale.set(0.005,0.005,0.005)
+
+        // primite tags can be collected in array too!
         jsxTreesList.push(<primitive key={instance.uuid} object={instance} />)
       })
     })
     console.log("Trees: ", jsxTreesList.length)
     return jsxTreesList
-  }, [map])
+  }, [map]) // update trees if map changes
 
-
-  return <group name="forrest">
+  return <group name="forest">
     {trees}
   </group>
 }

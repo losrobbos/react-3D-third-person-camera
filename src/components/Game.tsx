@@ -13,7 +13,8 @@ export const Game = () => {
 
   return (
     <Physics>
-      <Environment preset="park" background />
+      {/* !! HINT: Environment map is fetched from URL! use OWN before deploy! */}
+      {/* <Environment preset="park" background /> */}
       <RigidBody name="Ground-Colly" >
         <Ground />
       </RigidBody>
