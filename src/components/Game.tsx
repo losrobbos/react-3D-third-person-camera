@@ -5,7 +5,7 @@ import { RingOfFire } from './RingOfFire'
 import { Ground } from './Ground'
 import { Physics, RigidBody } from '@react-three/rapier'
 import { Trees } from './Trees'
-import { Environment } from '@react-three/drei'
+// import { Environment } from '@react-three/drei'
 
 const helpersVisible = false
 
