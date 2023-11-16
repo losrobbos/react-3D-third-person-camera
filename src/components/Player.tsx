@@ -16,6 +16,13 @@ type Props = {
 
 const playerSize = new Vector3()
 
+// load tracks OUTSIDE of component (=> to prevent reloading on re-render)
+const musicTheme = new Audio("./tracks/theme.mp3")
+const musicJingle = new Audio("./tracks/jingle.mp3")
+musicTheme.volume = 0.1
+musicJingle.volume = 0.3
+
+
 export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
 
   const camera = useCamera()
@@ -24,6 +31,7 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
   const { animations, nodes, scene: sceneModel } = useGLTF("./models/robot.glb") as GLTFResult
   const scene = useThree(state => state.scene)
   const refPlayer = useRef<Mesh>(null!)
+  const [audio, setAudio] = useState(false)
 
   const model = sceneModel // nodes["RootNode"] // the actual model
   const modelBB = nodes["RobotArmature"] // the core "rumpf" of the model => ideal for usage as bounding box!
@@ -50,6 +58,7 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
     player.traverse((obj) => {
       if (obj instanceof Mesh) {
         obj.castShadow = true;
+        obj.receiveShadow = true;
       }
     })
 
@@ -62,6 +71,13 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
 
     // start initial animation
     actions[animationCurrent]?.play()
+
+    // on unmount of player => stop any running tracks!
+    return () => {
+      musicTheme.pause()
+      musicJingle.pause()
+    }
+
   }, [])
 
   /**
@@ -73,10 +89,25 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
     if (!refPlayer.current) return
     const player = refPlayer.current
 
-    // step 1: determine new animation
+    // check if user switches music on
+    if(keysPressed.audio) {
+      // toggle AUDIO
+      if(audio) {
+        musicTheme.pause()
+        setAudio(false)
+      }
+      else {
+        musicTheme.play()
+        setAudio(true)
+      }
+
+    }
+
+
+    // determine new animation (default: idle)
     let actionToPlay: ModelAction = "Idle"
 
-    // MOVEMENT ?
+    // MOVEMENT anim?
     if (keysPressed.up || keysPressed.down) {
       actionToPlay = "Walking"
       if (keysPressed.shift) {
@@ -95,9 +126,10 @@ export const Player = ({ helper = false, position = [0, 0, 0] }: Props) => {
         actionToPlay = "Dance"
         // remove collided object with delay
         setTimeout(()=> {
+          musicJingle.play()
           torus.geometry.dispose();
           scene.remove(torus)
-        }, 3000)
+        }, 2000)
       }
 
     }

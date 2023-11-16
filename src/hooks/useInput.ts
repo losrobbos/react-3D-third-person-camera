@@ -8,6 +8,7 @@ interface IKeyMap {
   Shift: "shift";
   Enter: "enter"
   " ": "space";
+  "a": "audio",
 }
 
 const KEY_MAP: IKeyMap = {
@@ -18,6 +19,7 @@ const KEY_MAP: IKeyMap = {
   Shift: "shift",
   Enter: "enter",
   " ": "space",
+  "a": "audio"
 };
 
 export const useInput = () => {
@@ -28,10 +30,12 @@ export const useInput = () => {
     right: false,
     space: false,
     shift: false,
-    enter: false
+    enter: false,
+    audio: false
   });
 
   const toggleKey = (e: KeyboardEvent, active: boolean) => {
+
     if (e.key in KEY_MAP) {
       const KEY = KEY_MAP[e.key as keyof IKeyMap];
 
