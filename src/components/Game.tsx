@@ -13,7 +13,7 @@ export const Game = () => {
 
   return (
     <Physics>
-      <Environment preset="forest" background />
+      <Environment preset="park" background />
       <RigidBody name="Ground-Colly" >
         <Ground />
       </RigidBody>
